@@ -1,0 +1,6 @@
+*.pyc
+**/__pycache__/*
+**/migrations/*
+*.log
+core/custom_settings.py
+

@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+
+{% block title %}
+
+{% endblock %}
+
+
+{% block content %}
+    <table align="center" cellspacing="3" border="4" width="10" id="table">
+        <tr>
+            <th>Дата</th>
+            <th>Название</th>
+            <th>Количество</th>
+            <th>Расстояние</th>
+        </tr>
+        {% for instance in object_list %}
+        <tr>
+            <td id="date">{{ instance.date|date:"d/m/Y" }}</td>
+            <td id="title">{{ instance.title }}</td>
+            <td id="count">{{ instance.count }}</td>
+            <td id="distance">{{ instance.distance }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% if q %}
+        {% if page_obj.has_other_pages %}
+            <div style="text-align:center">
+                <a href="?q={{q}}&page=1">первая страница</a>
+                {% for p in paginator.page_range %}
+                    {% if p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+                        <a href="?q={{q}}&page={{p}}">{{p}}</a>
+                    {% endif %}
+                {% endfor %}
+                    <a href="?q={{q}}&page={{ page_obj.paginator.num_pages }}">последняя страница</a>
+            </div>
+        {% endif %}
+    {% else %}
+        {% if page_obj.has_other_pages %}
+            <div style="text-align:center">
+                <a href="?page=1">первая страница</a>
+                {% for p in paginator.page_range %}
+                    {% if p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+                        <a href="?page={{p}}">{{p}}</a>
+                    {% endif %}
+                {% endfor %}
+                    <a href="?page={{ page_obj.paginator.num_pages }}">последняя страница</a>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <div style="text-align:center;">
+        <form action="." method="get" id="form">
+            {{ form.as_p }}
+            <button type="button" id="search_button">поиск</button>
+        </form>
+    </div>
+    <script>
+        let button = document.getElementById('search_button');
+         button.addEventListener('click', function(){
+            let form = document.getElementById('form');
+            let form_data = {};
+            for(field of form)
+            {
+                form_data[field.name] = field.value
+            }
+            console.log(form_data);
+
+
+            let date = document.getElementById('date');
+            let title = document.getElementById('title');
+            let count = document.getElementById('count');
+            let distance = document.getElementById('distance');
+            let table = document.getElementById('table')
+
+
+            let request = new XMLHttpRequest();
+            let params = '${form_data.colomn}_${form_data.condition}';
+            if(form_data.colomn == 'title' && form_data.condition == 'exact'){
+                request.open('GET', '/api/main/?title_exact=' + form_data.q, true);
+                request.addEventListener('readystatechange', function()
+                {
+                    if(request.readyState===4 && request.status==200)
+                    {
+                    let response = JSON.parse(request.responseText);
+                    // console.log(response['results']['0']['date']);
+                    table.innerHTML = "";
+                    for(res of response['results']){
+
+                        table.innerHTML +=  '<tr>' +
+                                                '<th>' + 'Дата' + '</th>' +
+                                                '<th>' + 'Название' + '</th>' +
+                                                '<th>' + 'Количество' + '</th>' +
+                                                '<th>' + 'Расстояние' + '</th>' +
+                                            '</tr>' +
+                                            '<tr>' +
+                                                '<td>' + res['date'] + '</td>' +
+                                                '<td>' + res['title'] + '</td>' +
+                                                '<td>' + res['count'] + '</td>' +
+                                                '<td>' + res['distance'] + '</td>' +
+                                            '</tr>'
+
+                    }
+
+                    }
+                    })
+                }
+
+            if(form_data.colomn == 'title' && form_data.condition == 'is'){
+                request.open('GET', '/api/main/?title_is=' + form_data.q, true);
+                request.addEventListener('readystatechange', function()
+                {
+                    if(request.readyState===4 && request.status==200)
+                    {
+                    let response = JSON.parse(request.responseText);
+                    console.log(response['results']);
+                    }
+                    })
+                }
+
+            if(form_data.colomn == 'count' && form_data.condition == 'gt'){
+                request.open('GET', '/api/main/?count_gt=' + form_data.q, true);
+                request.addEventListener('readystatechange', function()
+                {
+                    if(request.readyState===4 && request.status==200)
+                    {
+                    let response = JSON.parse(request.responseText);
+                    //console.log(response['results']);
+                    table.innerHTML = "";
+                    for(res of response['results']){
+
+                        table.innerHTML +=  '<tr>' +
+                                                '<th>' + 'Дата' + '</th>' +
+                                                '<th>' + 'Название' + '</th>' +
+                                                '<th>' + 'Количество' + '</th>' +
+                                                '<th>' + 'Расстояние' + '</th>' +
+                                            '</tr>' +
+                                            '<tr>' +
+                                                '<td>' + res['date'] + '</td>' +
+                                                '<td>' + res['title'] + '</td>' +
+                                                '<td>' + res['count'] + '</td>' +
+                                                '<td>' + res['distance'] + '</td>' +
+                                            '</tr>'
+
+                    }
+                    }
+                    })
+                }
+
+            if(form_data.colomn == 'count' && form_data.condition == 'lt'){
+                request.open('GET', '/api/main/?count_lt=' + form_data.q, true);
+                request.addEventListener('readystatechange', function()
+                {
+                    if(request.readyState===4 && request.status==200)
+                    {
+                    let response = JSON.parse(request.responseText);
+                    console.log(response['results']);
+                    table.innerHTML = "";
+                    for(res of response['results']){
+
+                        table.innerHTML +=  '<tr>' +
+                                                '<th>' + 'Дата' + '</th>' +
+                                                '<th>' + 'Название' + '</th>' +
+                                                '<th>' + 'Количество' + '</th>' +
+                                                '<th>' + 'Расстояние' + '</th>' +
+                                            '</tr>' +
+                                            '<tr>' +
+                                                '<td>' + res['date'] + '</td>' +
+                                                '<td>' + res['title'] + '</td>' +
+                                                '<td>' + res['count'] + '</td>' +
+                                                '<td>' + res['distance'] + '</td>' +
+                                            '</tr>'
+
+                    }
+                    }
+                    })
+                }
+
+            if(form_data.colomn == 'count' && form_data.condition == 'exact'){
+                request.open('GET', '/api/main/?count_exact=' + form_data.q, true);
+                request.addEventListener('readystatechange', function()
+                {
+                    if(request.readyState===4 && request.status==200)
+                    {
+                    let response = JSON.parse(request.responseText);
+                    console.log(response['results']);
+                    table.innerHTML = "";
+                    for(res of response['results']){
+
+                        table.innerHTML +=  '<tr>' +
+                                                '<th>' + 'Дата' + '</th>' +
+                                                '<th>' + 'Название' + '</th>' +
+                                                '<th>' + 'Количество' + '</th>' +
+                                                '<th>' + 'Расстояние' + '</th>' +
+                                            '</tr>' +
+                                            '<tr>' +
+                                                '<td>' + res['date'] + '</td>' +
+                                                '<td>' + res['title'] + '</td>' +
+                                                '<td>' + res['count'] + '</td>' +
+                                                '<td>' + res['distance'] + '</td>' +
+                                            '</tr>'
+
+                    }
+                    }
+                    })
+                }
+
+            if(form_data.colomn == 'distance' && form_data.condition == 'gt'){
+                request.open('GET', '/api/main/?distance_gt=' + form_data.q, true);
+                request.addEventListener('readystatechange', function()
+                {
+                    if(request.readyState===4 && request.status==200)
+                    {
+                    let response = JSON.parse(request.responseText);
+                    console.log(response['results']);
+                    table.innerHTML = "";
+                    for(res of response['results']){
+
+                        table.innerHTML +=  '<tr>' +
+                                                '<th>' + 'Дата' + '</th>' +
+                                                '<th>' + 'Название' + '</th>' +
+                                                '<th>' + 'Количество' + '</th>' +
+                                                '<th>' + 'Расстояние' + '</th>' +
+                                            '</tr>' +
+                                            '<tr>' +
+                                                '<td>' + res['date'] + '</td>' +
+                                                '<td>' + res['title'] + '</td>' +
+                                                '<td>' + res['count'] + '</td>' +
+                                                '<td>' + res['distance'] + '</td>' +
+                                            '</tr>'
+
+                    }
+                    }
+                    })
+                }
+
+            if(form_data.colomn == 'distance' && form_data.condition == 'lt'){
+                request.open('GET', '/api/main/?distance_lt=' + form_data.q, true);
+                request.addEventListener('readystatechange', function()
+                {
+                    if(request.readyState===4 && request.status==200)
+                    {
+                    let response = JSON.parse(request.responseText);
+                    console.log(response['results']);
+                    table.innerHTML = "";
+                    for(res of response['results']){
+
+                        table.innerHTML +=  '<tr>' +
+                                                '<th>' + 'Дата' + '</th>' +
+                                                '<th>' + 'Название' + '</th>' +
+                                                '<th>' + 'Количество' + '</th>' +
+                                                '<th>' + 'Расстояние' + '</th>' +
+                                            '</tr>' +
+                                            '<tr>' +
+                                                '<td>' + res['date'] + '</td>' +
+                                                '<td>' + res['title'] + '</td>' +
+                                                '<td>' + res['count'] + '</td>' +
+                                                '<td>' + res['distance'] + '</td>' +
+                                            '</tr>'
+
+                    }
+                    }
+                    })
+                }
+
+            if(form_data.colomn == 'distance' && form_data.condition == 'exact'){
+                request.open('GET', '/api/main/?distance_exact=' + form_data.q, true);
+                request.addEventListener('readystatechange', function()
+                {
+                    if(request.readyState===4 && request.status==200)
+                    {
+                    let response = JSON.parse(request.responseText);
+                    console.log(response['results']);
+                    table.innerHTML = "";
+                    for(res of response['results']){
+
+                        table.innerHTML +=  '<tr>' +
+                                                '<th>' + 'Дата' + '</th>' +
+                                                '<th>' + 'Название' + '</th>' +
+                                                '<th>' + 'Количество' + '</th>' +
+                                                '<th>' + 'Расстояние' + '</th>' +
+                                            '</tr>' +
+                                            '<tr>' +
+                                                '<td>' + res['date'] + '</td>' +
+                                                '<td>' + res['title'] + '</td>' +
+                                                '<td>' + res['count'] + '</td>' +
+                                                '<td>' + res['distance'] + '</td>' +
+                                            '</tr>'
+
+                    }
+                    }
+                    })
+                }
+                request.send();
+            return false
+         });
+    </script>
+
+{% endblock %}
